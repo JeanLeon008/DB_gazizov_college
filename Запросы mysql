@@ -1,0 +1,183 @@
+4. Напишите следующие SQL запросы к базе данных college.
+1. Получить список всех преподавателей отделения Информационные системы с
+указанием Ф.И.О, названия пола и названия отделения.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic, gazizov_gender.name, gazizov_otdel.name FROM gazizov_user
+JOIN gazizov_gender ON gazizov_gender.gender_id = gazizov_user.gender_id
+JOIN gazizov_teacher ON gazizov_teacher.user_id = gazizov_user.user_id
+JOIN gazizov_otdel ON gazizov_teacher.otdel_id = gazizov_otdel.otdel_id
+WHERE gazizov_otdel.name = 'Информационные системы'
+
+2. Получить список всех студентов отделения «Информационные системы» с указанием
+Ф.И.О, названия группы и названия специальности.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic, gazizov_gruppa.name, gazizov_special.name FROM gazizov_user
+JOIN gazizov_student ON gazizov_student.user_id = gazizov_user.user_id
+JOIN gazizov_gruppa ON gazizov_gruppa.gruppa_id = gazizov_student.gruppa_id
+JOIN gazizov_special ON gazizov_special.special_id = gazizov_gruppa.special_id
+WHERE gazizov_special.otdel_id = 1
+
+3. Получить список всех предметов отделения «Технические специальности» с указанием
+названия предмета, количества часов и названия специальности.
+SELECT gazizov_course.name, gazizov_course.hours, gazizov_special.name FROM `gazizov_course` 
+JOIN gazizov_special ON gazizov_special.special_id = gazizov_course.special_id
+WHERE gazizov_special.otdel_id = 2
+
+4. Получить список всех групп специальности «Информационные системы» с указанием
+названия группы, даты начала и даты окончания.
+SELECT name, date_begin, date_end FROM `gazizov_gruppa` 
+WHERE gazizov_gruppa.special_id = 1 
+
+5. Получить список всех студентов которые обучаются дисциплине «Мультимедиа
+технологии» с указанием Ф.И.О студента и названия группы.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic, gazizov_gruppa.name FROM `gazizov_gruppa` 
+JOIN gazizov_student ON gazizov_student.gruppa_id = gazizov_gruppa.gruppa_id
+JOIN gazizov_user ON gazizov_user.user_id = gazizov_student.user_id
+JOIN gazizov_special ON gazizov_special.special_id = gazizov_gruppa.special_id
+JOIN gazizov_course ON gazizov_course.special_id = gazizov_special.special_id
+WHERE gazizov_course.name = 'Мультимедиа технология'
+
+6. Получить список всех преподавателей у которых занятие в диапазоне от 08:30:00 до
+15:00:00 с указанием Ф.И.О преподавателя, названия предмета, количества часов и
+названия группы.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic, gazizov_course.name, gazizov_course.hours, gazizov_gruppa.name
+FROM gazizov_user 
+JOIN gazizov_teacher ON gazizov_user.user_id = gazizov_teacher.user_id
+JOIN gazizov_graduate ON gazizov_graduate.user_id = gazizov_teacher.user_id
+JOIN gazizov_gruppa ON gazizov_gruppa.gruppa_id = gazizov_graduate.gruppa_id
+JOIN gazizov_course ON gazizov_course.course_id = gazizov_graduate.course_id
+JOIN gazizov_graduate_time ON gazizov_graduate_time.graduate_id = gazizov_graduate.graduate_id
+JOIN gazizov_lesson_num ON gazizov_lesson_num.lesson_num_id = gazizov_graduate_time.lesson_num_id
+WHERE gazizov_lesson_num.time_lesson BETWEEN '08:30:00' AND '15:00:00';
+
+
+7. Сформировать отчет по количеству студентов обучающихся в отделениях учебного
+заведения.
+SELECT COUNT(*), gazizov_otdel.name FROM `gazizov_otdel` 
+JOIN gazizov_special ON gazizov_special.otdel_id = gazizov_otdel.otdel_id
+JOIN gazizov_gruppa ON gazizov_gruppa.special_id = gazizov_special.special_id
+LEFT OUTER JOIN gazizov_graduate ON gazizov_graduate.gruppa_id = gazizov_gruppa.gruppa_id
+GROUP BY gazizov_otdel.name
+
+8. Сформировать отчет по количеству предметов в группах учебного заведения.
+SELECT COUNT(*), gazizov_otdel.name FROM `gazizov_otdel` 
+JOIN gazizov_special ON gazizov_special.otdel_id = gazizov_otdel.otdel_id
+JOIN gazizov_course ON gazizov_special.special_id = gazizov_course.special_id
+GROUP BY gazizov_otdel.otdel_id
+
+9. Получить список всех преподавателей которые не читают ни одну дисциплину.
+SELECT gazizov_user.lastname,gazizov_user.firstname,gazizov_user.patronomic FROM `gazizov_teacher` 
+JOIN gazizov_user ON gazizov_user.user_id = gazizov_teacher.user_id
+LEFT OUTER JOIN gazizov_graduate ON gazizov_graduate.user_id = gazizov_teacher.user_id
+WHERE gazizov_graduate.user_id IS null
+
+10. Получить список всех предметов которые не изучаются.
+SELECT gazizov_course.name FROM `gazizov_course` 
+LEFT OUTER JOIN gazizov_graduate ON gazizov_graduate.course_id = gazizov_course.course_id
+WHERE gazizov_graduate.course_id IS null
+
+11. Получить список всех специальностей у которых нет ни одной дисциплины.
+SELECT gazizov_special.name FROM `gazizov_special` 
+LEFT OUTER JOIN gazizov_course ON gazizov_course.special_id = gazizov_special.special_id
+WHERE gazizov_course.special_id IS null
+
+
+12. Получить список всех студентов жеского пола которые обучаются в диапазоне от
+10:30 до 18:30.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic FROM `gazizov_student` 
+JOIN gazizov_user ON gazizov_user.user_id = gazizov_student.user_id
+JOIN gazizov_gender ON gazizov_gender.gender_id = gazizov_user.gender_id
+JOIN gazizov_gruppa ON gazizov_gruppa.gruppa_id = gazizov_student.gruppa_id
+JOIN gazizov_graduate ON gazizov_graduate.gruppa_id = gazizov_gruppa.gruppa_id
+JOIN gazizov_graduate_time ON gazizov_graduate_time.graduate_id = gazizov_graduate.graduate_id
+JOIN gazizov_lesson_num ON gazizov_lesson_num.lesson_num_id = gazizov_graduate_time.lesson_num_id
+WHERE gazizov_lesson_num.time_lesson BETWEEN '10:30:00' AND '18:30:00' AND gazizov_gender.name = 'Женский'
+
+13. Получить список всех предметов которые проводятся в диапазоне от 12:30 до 18:30
+SELECT gazizov_course.name FROM `gazizov_course` 
+JOIN gazizov_graduate ON gazizov_graduate.course_id = gazizov_course.course_id
+JOIN gazizov_graduate_time ON gazizov_graduate_time.graduate_id = gazizov_graduate.graduate_id
+JOIN gazizov_lesson_num ON gazizov_lesson_num.lesson_num_id = gazizov_graduate_time.lesson_num_id
+WHERE gazizov_lesson_num.time_lesson BETWEEN '12:30:00' AND '18:30:00'
+
+14. Получить список всех студентов которые обучаются в пятницу.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic FROM `gazizov_student` 
+JOIN gazizov_user ON gazizov_user.user_id = gazizov_student.user_id
+JOIN gazizov_gruppa ON gazizov_student.gruppa_id = gazizov_gruppa.gruppa_id
+JOIN gazizov_graduate ON gazizov_graduate.gruppa_id = gazizov_gruppa.gruppa_id
+JOIN gazizov_graduate_time ON gazizov_graduate_time.graduate_id = gazizov_graduate.graduate_id
+JOIN gazizov_day ON gazizov_day.day_id = gazizov_graduate_time.day_id
+WHERE gazizov_day.name = 'Пятница'
+
+15. Получить список всех названий дней недели в которые не преподается ни одна
+дисциплина.
+SELECT gazizov_day.name FROM `gazizov_day` 
+LEFT OUTER JOIN gazizov_graduate_time ON gazizov_graduate_time.day_id = gazizov_day.day_id
+WHERE gazizov_graduate_time.day_id IS null
+
+16. Получить список названий специальностей для которых проводятся занятия во
+вторник.
+SELECT gazizov_special.name FROM `gazizov_special` 
+JOIN gazizov_course ON gazizov_course.special_id = gazizov_special.special_id
+JOIN gazizov_graduate ON gazizov_graduate.course_id = gazizov_course.course_id
+JOIN gazizov_graduate_time ON gazizov_graduate_time.graduate_id = gazizov_graduate.graduate_id
+JOIN gazizov_day ON gazizov_day.day_id = gazizov_graduate_time.day_id
+WHERE gazizov_day.name = 'Среда'
+
+
+17. Получить список преподавателей (Ф.И.О, название отделения) у которых занятия
+проводятся в субботу.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic, gazizov_otdel.name FROM `gazizov_teacher`
+JOIN gazizov_user ON gazizov_user.user_id = gazizov_teacher.user_id
+JOIN gazizov_otdel ON gazizov_otdel.otdel_id = gazizov_teacher.otdel_id
+JOIN gazizov_graduate ON gazizov_graduate.user_id = gazizov_teacher.user_id
+JOIN gazizov_graduate_time ON gazizov_graduate_time.graduate_id = gazizov_graduate.graduate_id
+JOIN gazizov_day ON gazizov_day.day_id = gazizov_graduate_time.day_id
+WHERE gazizov_day.name = 'Пятница'
+В субботу все отдыхают
+
+18. Получить список всех студентов которые обучаются дисциплинам у которых более 12 часов времени обучения с указанием Ф.И.О студента, названия группы и названия
+специальности.
+SELECT gazizov_user.lastname, gazizov_user.firstname, gazizov_user.patronomic, gazizov_gruppa.name, gazizov_special.name FROM gazizov_student 
+JOIN gazizov_user ON gazizov_student.user_id = gazizov_user.user_id
+JOIN gazizov_gruppa ON gazizov_student.gruppa_id = gazizov_gruppa.gruppa_id
+JOIN gazizov_special ON gazizov_gruppa.special_id = gazizov_special.special_id
+JOIN gazizov_graduate ON gazizov_gruppa.gruppa_id = gazizov_graduate.gruppa_id
+JOIN gazizov_course ON gazizov_graduate.course_id = gazizov_course.course_id
+WHERE gazizov_course.hours > 12
+
+19. Получить список всех предметов отделения «Технические специальности» с указанием
+названия предмета, количества часов и названия специальности для которых занятия
+проводятся в среду и пятницу.
+SELECT gazizov_course.name, gazizov_course.hours, gazizov_special.name FROM `gazizov_course`
+JOIN gazizov_special ON gazizov_special.special_id = gazizov_course.special_id
+JOIN gazizov_otdel ON gazizov_otdel.otdel_id = gazizov_special.otdel_id
+JOIN gazizov_graduate ON gazizov_graduate.course_id = gazizov_course.course_id
+JOIN gazizov_graduate_time ON gazizov_graduate.graduate_id = gazizov_graduate_time.graduate_id
+JOIN gazizov_day ON gazizov_day.day_id = gazizov_graduate_time.day_id
+WHERE gazizov_otdel.name = 'Технические специальности' AND gazizov_day.name = 'Среда' OR gazizov_day.name = 'Пятница'
+
+20. Получить список отделений у которых преподаватели проводят занятия в диапазоне от
+09:00 до 12:00 во вторник.
+SELECT gazizov_otdel.name FROM gazizov_otdel 
+JOIN gazizov_teacher ON gazizov_otdel.otdel_id = gazizov_teacher.otdel_id
+JOIN gazizov_graduate ON gazizov_teacher.user_id = gazizov_graduate.user_id
+JOIN gazizov_graduate_time ON gazizov_graduate.graduate_id = gazizov_graduate_time.graduate_id
+JOIN gazizov_lesson_num ON gazizov_graduate_time.lesson_num_id = gazizov_lesson_num.lesson_num_id
+JOIN gazizov_day ON gazizov_graduate_time.day_id = gazizov_day.day_id
+WHERE gazizov_lesson_num.time_lesson BETWEEN '09:00:00' AND '12:00:00' AND gazizov_day.name = 'Вторник'
+
+21. Сформировать отчет для каждого дня недели по проводимому количеству предметов.
+SELECT gazizov_day.name, COUNT(*) FROM `gazizov_day`
+JOIN gazizov_graduate_time ON gazizov_graduate_time.day_id = gazizov_day.day_id
+JOIN gazizov_graduate ON gazizov_graduate.graduate_id = gazizov_graduate_time.graduate_id
+JOIN gazizov_course ON gazizov_graduate.course_id = gazizov_course.course_id
+GROUP BY gazizov_course.course_id, gazizov_day.name
+
+22. Получить список специальностей у которых нет занятий в диапазоне от 15:00 до 18:00
+в четверг и субботу.
+SELECT gazizov_special.name, gazizov_lesson_num.name, gazizov_day.name FROM gazizov_special 
+JOIN gazizov_course ON gazizov_special.special_id = gazizov_course.special_id
+JOIN gazizov_graduate ON gazizov_course.course_id = gazizov_graduate.course_id
+JOIN gazizov_graduate_time ON gazizov_graduate.graduate_id = gazizov_graduate_time.graduate_id
+JOIN gazizov_lesson_num ON gazizov_graduate_time.lesson_num_id = gazizov_lesson_num.lesson_num_id 
+JOIN gazizov_day ON gazizov_graduate_time.day_id = gazizov_day.day_id
+WHERE gazizov_lesson_num.time_lesson BETWEEN '15:00:00' AND '18:00:00' AND gazizov_day.day_id BETWEEN 4 AND 6
